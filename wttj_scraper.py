@@ -1,12 +1,3 @@
-"""
-Scraper - Welcome to the Jungle
-Cible : Offres Data en France (30 premières)
-Stack : Selenium + Excel (openpyxl)
-
-⚠️  HEADLESS désactivé : WTTJ détecte et bloque le mode headless.
-    Chrome s'ouvre visiblement — c'est normal, ne pas le fermer.
-"""
-
 import time
 import re
 import logging
@@ -33,6 +24,9 @@ BASE_URL = (
     "https://www.welcometothejungle.com/fr/jobs"
     "?refinementList%5Boffices.country_code%5D%5B%5D=FR"
     "&query=data"
+
+# Les données sont stockées dans un fichier excel
+
 )
 EXCEL_PATH = "wttj_jobs_data.xlsx"
 HEADLESS   = False   # WTTJ bloque le headless → fenêtre Chrome visible
@@ -61,14 +55,11 @@ class JobOffer:
     description: Optional[str] = None
     profile:     Optional[str] = None
     url:         Optional[str] = None
-    scraped_at:  str = field(default_factory=lambda: datetime.now().isoformat())
-
 
 # ── Excel ──────────────────────────────────────────────────────────────────────
 
-COLUMNS    = ["Intitulé du poste", "Entreprise", "Ville",
-              "Salaire", "Description", "Profil recherché", "URL", "Date scraping"]
-COL_WIDTHS = [35, 25, 20, 20, 60, 60, 50, 20]
+COLUMNS    = ["Intitulé du poste", "Entreprise", "Ville", "Salaire", "Description", "Profil recherché", "URL"]
+COL_WIDTHS = [35, 25, 20, 20, 60, 60, 50]
 
 HEADER_FILL   = PatternFill("solid", start_color="2E75B6", end_color="2E75B6")
 HEADER_FONT   = Font(bold=True, color="FFFFFF", name="Arial", size=11)
@@ -76,14 +67,13 @@ ROW_FILL_ODD  = PatternFill("solid", start_color="EBF3FB", end_color="EBF3FB")
 ROW_FILL_EVEN = PatternFill("solid", start_color="FFFFFF", end_color="FFFFFF")
 CELL_FONT     = Font(name="Arial", size=10)
 BORDER_SIDE   = Side(style="thin", color="BDD7EE")
-CELL_BORDER   = Border(left=BORDER_SIDE, right=BORDER_SIDE,
-                       top=BORDER_SIDE, bottom=BORDER_SIDE)
+CELL_BORDER   = Border(left=BORDER_SIDE, right=BORDER_SIDE, top=BORDER_SIDE, bottom=BORDER_SIDE)
 
 
 def init_workbook():
     wb = Workbook()
     ws = wb.active
-    ws.title = "Offres Data - WTTJ"
+    ws.title = "Offres emplois"
     ws.freeze_panes = "A2"
     for col_idx, (header, width) in enumerate(zip(COLUMNS, COL_WIDTHS), start=1):
         cell = ws.cell(row=1, column=col_idx, value=header)
@@ -97,8 +87,7 @@ def init_workbook():
 
 
 def append_offer(ws, job: JobOffer, row: int):
-    values = [job.title, job.company, job.city, job.salary or "",
-              job.description or "", job.profile or "", job.url or "", job.scraped_at]
+    values = [job.title, job.company, job.city, job.salary or "", job.description or "", job.profile or "", job.url or ""]
     fill = ROW_FILL_ODD if row % 2 != 0 else ROW_FILL_EVEN
     for col_idx, value in enumerate(values, start=1):
         cell = ws.cell(row=row, column=col_idx, value=value)
