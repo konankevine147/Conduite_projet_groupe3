@@ -51,7 +51,7 @@ Elle se fermera seule à la fin du script.
 
 ## 🔧 Configuration
 
-Les paramètres sont modifiables en haut du fichier `wttj_scraper.py` :
+Les paramètres sont modifiables en haut du fichier `wttj.py` :
 
 ```python
 MAX_OFFERS = 30      # Nombre maximum d'offres à collecter
